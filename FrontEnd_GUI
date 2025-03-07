@@ -1,0 +1,161 @@
+import tkinter as tk
+import subprocess
+import threading
+import time
+import subprocess
+import tkinter as tk
+import threading
+
+class LetterChainGame:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Letter Chain Game")
+
+        self.time_remaining = 30
+        self.score = 0
+        self.grid = []
+        self.timer_label = tk.Label(root, text=f"Time Left: {self.time_remaining}s", font=("Helvetica", 14))
+        self.timer_label.pack()
+
+        self.score_label = tk.Label(root, text=f"Score: {self.score}", font=("Helvetica", 14))
+        self.score_label.pack()
+
+        self.word_input = tk.Entry(root, font=("Helvetica", 14))
+        self.word_input.pack()
+
+        self.submit_button = tk.Button(root, text="Submit Word", font=("Helvetica", 14), command=self.submit_word)
+        self.submit_button.pack()
+
+        self.grid_frame = tk.Frame(root)
+        self.grid_frame.pack()
+
+        self.start_game()
+
+    def start_game(self):
+        self.time_remaining = 30
+        self.score = 0
+        self.update_grid()
+        self.update_timer()
+        self.game_thread = threading.Thread(target=self.run_game)
+        self.game_thread.start()
+
+    def update_grid(self):
+        self.grid = self.get_grid_from_cpp()
+        for widget in self.grid_frame.winfo_children():
+            widget.destroy()
+        for i in range(4):
+            for j in range(4):
+                letter_button = tk.Button(self.grid_frame, text=self.grid[i][j], width=5, height=2, font=("Helvetica", 12))
+                letter_button.grid(row=i, column=j)
+
+    def get_grid_from_cpp(self):
+        # Call the C++ program to get the letter grid
+        # For simplicity, this is hardcoded in this example
+        return [['C', 'A', 'T', 'S'],
+                ['B', 'A', 'R', 'E'],
+                ['D', 'G', 'H', 'T'],
+                ['P', 'A', 'N', 'E']]
+
+    def update_timer(self):
+        if self.time_remaining > 0:
+            self.time_remaining -= 1
+            self.timer_label.config(text=f"Time Left: {self.time_remaining}s")
+            self.root.after(1000, self.update_timer)
+        else:
+            self.timer_label.config(text="Time's up!")
+            self.submit_button.config(state=tk.DISABLED)
+
+    def submit_word(self):
+        word = self.word_input.get().upper()
+        if self.is_valid_word(word):
+            self.score += 1
+            self.score_label.config(text=f"Score: {self.score}")
+        self.word_input.delete(0, tk.END)
+
+    def is_valid_word(self, word):
+        # Validate word using a predefined dictionary or C++ logic
+        dictionary = {"CAT", "DOG", "BAT", "COT", "TAR", "ART", "TAD", "ACT"}
+        return word in dictionary
+    
+    class LetterChainGame:
+        def __init__(self, root):
+            self.root = root
+            self.root.title("Letter Chain Game")
+        
+            self.time_remaining = 30
+            self.score = 0
+            self.grid = []
+        
+            self.timer_label = tk.Label(root, text=f"Time Left: {self.time_remaining}s", font=("Helvetica", 14))
+            self.timer_label.pack()
+
+            self.score_label = tk.Label(root, text=f"Score: {self.score}", font=("Helvetica", 14))
+            self.score_label.pack()
+
+            self.word_input = tk.Entry(root, font=("Helvetica", 14))
+            self.word_input.pack()
+
+            self.submit_button = tk.Button(root, text="Submit Word", font=("Helvetica", 14), command=self.submit_word)
+            self.submit_button.pack()
+
+            self.grid_frame = tk.Frame(root)
+            self.grid_frame.pack()
+
+            self.start_game()
+
+    def start_game(self):
+        self.time_remaining = 30
+        self.score = 0
+        self.update_grid()
+        self.update_timer()
+        self.game_thread = threading.Thread(target=self.run_game)
+        self.game_thread.start()
+
+    def update_grid(self):
+        # Call C++ program and capture its output
+        self.grid = self.get_grid_from_cpp()
+        
+        for widget in self.grid_frame.winfo_children():
+            widget.destroy()
+        
+        for i in range(4):
+            for j in range(4):
+                letter_button = tk.Button(self.grid_frame, text=self.grid[i][j], width=5, height=2, font=("Helvetica", 12))
+                letter_button.grid(row=i, column=j)
+
+    def get_grid_from_cpp(self):
+        # Call the compiled C++ executable (make sure the C++ program is compiled into an executable)
+        result = subprocess.run(['./Backend'], stdout=subprocess.PIPE)
+        grid_output = result.stdout.decode('utf-8')
+        
+        # Process the output into a 2D list (grid)
+        grid_lines = grid_output.strip().splitlines()[1:]  # Skip "Letter Grid" line
+        grid = [line.split() for line in grid_lines]    
+        return grid
+
+    def update_timer(self):
+        if self.time_remaining > 0:
+            self.time_remaining -= 1
+            self.timer_label.config(text=f"Time Left: {self.time_remaining}s")
+            self.root.after(1000, self.update_timer)
+        else:
+            self.timer_label.config(text="Time's up!")
+            self.submit_button.config(state=tk.DISABLED)
+
+    def submit_word(self):
+        word = self.word_input.get().upper()
+        if self.is_valid_word(word):
+            self.score += 1
+            self.score_label.config(text=f"Score: {self.score}")
+        self.word_input.delete(0, tk.END)
+
+    def is_valid_word(self, word):
+        # For simplicity, use a hardcoded dictionary for now
+        dictionary = {"CAT", "DOG", "BAT", "COT", "TAR", "ART", "TAD", "ACT"}
+        return word in dictionary
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = LetterChainGame(root)
+    root.mainloop()

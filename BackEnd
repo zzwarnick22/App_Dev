@@ -1,0 +1,65 @@
+#include <iostream>
+#include <vector>
+#include <ctime>
+#include <cstdlib>
+#include <string>
+#include <unordered_set>
+
+// Function to generate a random letter grid
+std::vector<std::vector<char>> generateLetterGrid() {
+    std::vector<std::vector<char>> grid(4, std::vector<char>(4));
+    const std::string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    srand(time(0));
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            grid[i][j] = letters[rand() % letters.size()];
+        }
+    }
+    return grid;
+}
+
+// Function to check if a word exists in a simple dictionary (for simplicity, we use an unordered_set)
+bool isValidWord(const std::string &word, const std::unordered_set<std::string> &dictionary) {
+    return dictionary.find(word) != dictionary.end();
+}
+
+// Function to simulate the letter chain game (e.g., run the game for 30 seconds)
+void startGame(std::unordered_set<std::string> dictionary) {
+    int score = 0;
+    std::vector<std::vector<char>> grid = generateLetterGrid();
+
+    std::cout << "Welcome to Letter Chain!\n";
+    std::cout << "Find as many words as possible in 30 seconds.\n";
+    std::cout << "Your grid:\n";
+    for (const auto &row : grid) {
+        for (char c : row) {
+            std::cout << c << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    // Simulate game time (30 seconds)
+    time_t startTime = time(0);
+    while (difftime(time(0), startTime) < 30) {
+        std::string userInput;
+        std::cout << "Enter a word: ";
+        std::cin >> userInput;
+        if (isValidWord(userInput, dictionary)) {
+            score++;
+            std::cout << "Valid word! Your score: " << score << "\n";
+        } else {
+            std::cout << "Invalid word!\n";
+        }
+    }
+
+    std::cout << "Time's up! Your final score is: " << score << "\n";
+}
+
+int main() {
+    // Simple word dictionary for testing (you can expand this or load it from a file)
+    std::unordered_set<std::string> dictionary = {"CAT", "DOG", "BAT", "COT", "TAR", "ART", "TAD", "ACT"};
+    
+    startGame(dictionary);
+    return 0;
+}
